@@ -31,6 +31,8 @@ class Location {
 class Player {
   constructor(id) {
     this.id = id;
+    this.level = 1;
+    this.atk = 10;
     this.xp = 0;
     this.hp = 100;
     this.gold = 10;
@@ -49,6 +51,23 @@ class Shop {
   }
 }
 
+class Monster {
+  constructor(id) {
+    this.id = id;
+    this.name = 'Evil Imp';
+    this.hp = 10;
+    this.atk = 2;
+  }
+
+  dealDamage(opponent) {
+    // Deal damage to opponent (player)
+  }
+
+  takeDamage(amount) {
+    // Take a set amount of damage
+  }
+}
+
 class World {
   constructor() {
     this.players = [];
@@ -56,6 +75,28 @@ class World {
     this.locations = LOCATIONS.map(({id, name, allowedCommands}) => {
       return new Location(id, name, allowedCommands);
     });
+
+    // Start the game loop
+    setInterval(() => {
+      this.loop(this);
+    }, 5000);
+  }
+
+  loop(world) {
+    const forest = world.locations.find(location => location.name === 'Forest');
+
+    forest.monsters.forEach((monster, index) => {
+      if (monster.hp <= 0) {
+        forest.monsters.splice(index, 1);
+      }
+    });
+
+    if (forest.monsters.length < 3) {
+      let newMonster = new Monster(forest.monsters.length + 1);
+      forest.monsters.push(newMonster);
+    };
+
+    console.log(world.locations[0].monsters);
   }
 
   addPlayer(id) {
