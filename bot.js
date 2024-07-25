@@ -2,6 +2,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
+const world = require('./world.js');
+
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -34,6 +36,35 @@ client.on(Events.InteractionCreate, async interaction => {
 
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
+		return;
+	}
+
+	let player = world.players.find((player) => player.id === interaction.user.id);
+	let channelId = interaction.channelId;
+
+	// Move player to a new location
+	try {
+		if (!player) {
+			throw new Error(`Could not find a player with id ${interaction.user.id}`)
+		}
+
+		if (player.location === channelId) {
+			throw new Error('Player is already in that location');
+		}
+
+		player.move(channelId);
+	} catch (error) {
+		console.error(error.message);
+	}
+
+	// Veryfify that the command is allowed in the channel
+	let location = world.locations.find(location => location.id === channelId);
+
+	console.log(location);
+	console.log(interaction.commandName);
+
+	if (!location.allowedCommands.includes(interaction.commandName)) {
+		await interaction.reply({ content: `You can't do that here!`, ephemeral: true });
 		return;
 	}
 
