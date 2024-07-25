@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const world = require('../../world.js');
+const world = require('../../classes/World.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()

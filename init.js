@@ -1,2 +1,2 @@
-require('./world.js');
+require('./classes/World.js');
 require('./bot.js');
