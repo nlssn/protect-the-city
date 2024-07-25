@@ -18,6 +18,8 @@
   },
   "homepage": "https://github.com/nlssn/protect-the-city#readme",
   "dependencies": {
-    "discord.js": "^14.15.3"
+    "discord.js": "^14.15.3",
+    "nanoid": "^5.0.7",
+    "uuid": "^10.0.0"
   }
 }

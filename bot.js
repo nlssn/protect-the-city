@@ -30,44 +30,46 @@ for (const folder of commandFolders) {
 }
 
 client.on(Events.InteractionCreate, async interaction => {
+
+	// If the interaction is not a chat command, die.
 	if (!interaction.isChatInputCommand()) return;
 
+	// If the command is not available, die.
 	const command = interaction.client.commands.get(interaction.commandName);
-
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
 		return;
 	}
 
-	let player = world.players.find((player) => player.id === interaction.user.id);
-	let channelId = interaction.channelId;
+	// /join is always allowed
+	if (interaction.commandName !== 'join') {
 
-	// Move player to a new location
-	try {
+		// If the player has not created a character (/join), die.
+		let player = world.players.find((player) => player.id === interaction.user.id);
 		if (!player) {
-			throw new Error(`Could not find a player with id ${interaction.user.id}`)
+			await interaction.reply({ content: `Please do /join first`, ephemeral: true });
+			console.error(`Could not find a player with id ${interaction.user.id}`);
+			return;
 		}
 
-		if (player.location === channelId) {
-			throw new Error('Player is already in that location');
+		// Verify that the command is allowed in the channel
+		let location = world.locations.find(location => location.id === interaction.channelId);
+
+		if (!location.allowedCommands.includes(interaction.commandName)) {
+			await interaction.reply({ content: `You can't do that here!`, ephemeral: true });
+			return;
 		}
 
-		player.move(channelId);
-	} catch (error) {
-		console.error(error.message);
+		// Try to move the player to the new location (chat room)
+		if (player.location === interaction.channelId) {
+			console.error('Player is already in that location');
+		} else {
+			player.move(interaction.channelId);
+		}
+		
 	}
 
-	// Veryfify that the command is allowed in the channel
-	let location = world.locations.find(location => location.id === channelId);
-
-	console.log(location);
-	console.log(interaction.commandName);
-
-	if (!location.allowedCommands.includes(interaction.commandName)) {
-		await interaction.reply({ content: `You can't do that here!`, ephemeral: true });
-		return;
-	}
-
+	// Try to execute the command
 	try {
 		await command.execute(interaction);
 	} catch (error) {
